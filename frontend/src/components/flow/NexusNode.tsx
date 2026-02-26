@@ -20,6 +20,14 @@ const NexusNode = ({ id, data, selected }: NodeProps) => {
       if (input.readOnly) return true;
       if (input.required === false) return true;
       const val = data.config?.[input.name];
+      if (input.type === "logic-builder") {
+        return (
+          val &&
+          typeof val === "object" &&
+          Array.isArray((val as any).rules) &&
+          (val as any).rules.length > 0
+        );
+      }
       return val !== undefined && val !== null && val.toString().trim() !== "";
     });
   }, [config.inputs, data.config]);
