@@ -279,7 +279,29 @@ export default function PropertiesPanel({
                   {isDisabled && <Lock size={10} className="text-slate-300" />}
                 </div>
 
-                {input.type === "time-picker" ? (
+                {input.type === "logic-builder" ? (
+                  <div
+                    className={`${isDisabled ? "opacity-30 pointer-events-none" : "animate-in fade-in zoom-in-95 duration-200"}`}
+                  >
+                    <LogicBuilder
+                      value={
+                        currentData[input.name] || {
+                          combinator: "AND",
+                          rules: [],
+                        }
+                      }
+                      onChange={(val: any) => handleChange(input.name, val)}
+                      onOpenPicker={(onInsert: any) => {
+                        setPickerConfig({
+                          onInsert: (v: string, n?: string) => {
+                            onInsert(v, n);
+                            setPickerConfig(null);
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                ) : input.type === "time-picker" ? (
                   <div
                     className={`flex gap-3 ${isDisabled ? "opacity-30 pointer-events-none" : "animate-in fade-in zoom-in-95 duration-200"}`}
                   >
@@ -484,6 +506,70 @@ export default function PropertiesPanel({
           })}
         </div>
       </div>
+
+      {pickerConfig && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-200 flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setPickerConfig(null)}
+        >
+          <div
+            className="bg-white w-full max-w-[520px] rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div>
+                <div className="text-sm font-bold text-slate-800">
+                  Insert Variable
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Select an output from a previous node
+                </div>
+              </div>
+              <button
+                onClick={() => setPickerConfig(null)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 max-h-[65vh] overflow-y-auto space-y-4">
+              {getAvailableVariables().length === 0 ? (
+                <div className="text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4">
+                  No variables available yet. Add another node with outputs
+                  first.
+                </div>
+              ) : (
+                getAvailableVariables().map((group: any) => (
+                  <div key={group.id} className="space-y-2">
+                    <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 px-1">
+                      {group.label}
+                    </div>
+                    <div className="space-y-1">
+                      {group.variables.map((v: any) => (
+                        <button
+                          key={`${group.id}.${v.name}`}
+                          onClick={() => pickerConfig.onInsert(v.name, group.id)}
+                          className="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-colors"
+                        >
+                          <span className="text-sm font-mono font-bold text-slate-800">
+                            {v.name}
+                          </span>
+                          {v.desc && (
+                            <span className="text-[11px] text-slate-500 ml-3">
+                              {v.desc}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
