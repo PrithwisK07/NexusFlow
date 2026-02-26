@@ -445,7 +445,11 @@ function NexusCanvas() {
         duration: 4000,
       });
 
-      const returnedJobId = result.jobId || (result.data && result.data.jobId);
+      // const returnedJobId = result.jobId || (result.data && result.data.jobId);
+      const returnedJobId =
+  result.success && result.data?.jobId
+    ? result.data.jobId
+    : undefined;
 
       if (returnedJobId) {
         setActiveJobId(returnedJobId);
